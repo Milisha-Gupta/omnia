@@ -42,10 +42,28 @@ if [ $genesis_url_status -eq 0 ]; then
     genesis_rpm_file=`rpm -qa | grep xCAT-genesis-base-x86_64`
     rpm -e --nodeps $genesis_rpm_file
     rpm -ivh /tmp/xCAT-genesis-base-x86_64-2.16.4-snap202308211541.noarch.rpm
-    mknb x86_64
+    /opt/xcat/sbin/mknb x86_64
 fi
 
+echo "--------------------------" >> "$LOGFILE"
+echo "$(date) - INFO - Starting OIM Passive node setup" >> "$LOGFILE"
+
+if [ -f "/etc/debian_version" ];then
+  str_os_type="debian"
+else
+  str_os_type="redhat"
+fi
+
+# Install and configure podman
+if [ "$str_os_type" = "redhat" ]; then
+    sudo dnf install -y podman
+fi
+
+sudo systemctl enable podman.socket
+sudo systemctl start podman.socket
+
 {% if omnia_share_option == "NFS" %}
+echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf 
 # Create omnia_path directory if it does not exist
 echo "Creating omnia shared path directory if it does not exist" >> "$LOGFILE"
 mkdir -p {{ oim_shared_path }}
@@ -74,6 +92,8 @@ fi
 # Add NFS server share to /etc/fstab to mount on startup
 echo "{{ nfs_server_ip }}:{{ nfs_server_share_path }} {{ oim_shared_path }} nfs nosuid,rw,sync,hard,intr" >> /etc/fstab
 {% endif %}
+
+podman load -i {{ container_images_path }}
 
 echo "--------------------------" >> "$LOGFILE"
 echo "All service node packages installed successfully." >> "$LOGFILE"

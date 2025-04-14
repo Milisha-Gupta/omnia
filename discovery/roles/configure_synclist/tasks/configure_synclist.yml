@@ -30,6 +30,6 @@
   changed_when: true
 
 - name: Configure synclist to service osimage
-  ansible.builtin.command: "{{ xcat_path }}/chdef -t osimage -o {{ service_os_image }} synclists={{ synclists_dest_path }} otherpkgdir='' otherpkglist=''"
+  ansible.builtin.command: "{{ xcat_path }}/chdef -t osimage -o {{ service_os_image }} synclists={{ synclists_dest_path }} pkgdir='/install' otherpkgdir='' otherpkglist=''"
   changed_when: true
   when: service_role_required

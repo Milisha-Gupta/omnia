@@ -1,0 +1,59 @@
+#!/bin/bash
+################################################################################################################
+#  omnia_service_node:
+#      Configure Omnia's service nodes
+#
+#################################################################################################################
+# Define log file
+LOGFILE="/var/log/omnia/service_node.log"
+
+# Get the directory of the log file
+log_dir=$(dirname "$LOGFILE")
+
+# Create the log directory if it doesn't exist
+if [ ! -d "$log_dir" ]; then
+    mkdir -p "$log_dir"
+fi
+
+# Create the log file if it doesn't exist
+if [ ! -f "$LOGFILE" ]; then
+    touch "$LOGFILE"
+fi
+
+echo "--------------------------" >> "$LOGFILE"
+echo "$(date) - INFO - Starting Omnia Service node setup" >> "$LOGFILE"
+
+if [ -f "/etc/debian_version" ]; then
+    str_os_type="debian"
+else
+    str_os_type="redhat"
+fi
+
+# Install and configure podman
+if [ "$str_os_type" = "redhat" ]; then
+    sudo dnf install -y podman
+fi
+
+# Get node serial
+nodeid=$(dmidecode -s system-serial-number)
+echo "[DEBUG] Current node serial: $nodeid" >> "$LOGFILE"
+
+# Determine active node for this serial
+{% set active_node_map = {} %}
+{% for group in service_node_ha_data.service_nodes %}
+  {% for passive_tag in group.passive_nodes[0].node_service_tags %}
+    {% set _ = active_node_map.update({passive_tag: group.active_node_service_tag}) %}
+  {% endfor %}
+{% endfor %}
+
+active_node="{{ active_node_map.get(nodeid, nodeid) }}"
+echo "[DEBUG] Using container from active node: $active_node" >> "$LOGFILE"
+
+ln -sf {{ oim_shared_path }}/omnia/service_nodes/${active_node}/{{ pcs_container_name }}.container \
+       {{ container_systemd_dir }}/{{ pcs_container_name }}.container
+
+# Start the pcs container
+sudo systemctl start omnia_pcs
+
+echo "$(date) - INFO - Finished Omnia Service node setup" >> "$LOGFILE"
+echo "---------------------------"

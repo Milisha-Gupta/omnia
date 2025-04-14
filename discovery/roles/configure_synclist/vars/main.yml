@@ -31,12 +31,14 @@ pcs_vars: "{{ role_path }}/../../../prepare_oim/roles/deploy_containers/pcs/vars
 local_repo_access_src_path: "{{ role_path }}/templates/local_repo_access.yml.j2"
 local_repo_access_dest_path: "{{ provision_shared_path }}/local_repo_access.yml"
 syncfiles_share_path: "/opt/omnia/provision/syncfiles"
+service_syncfiles_share_path: "{{ oim_shared_path }}/omnia/provision/syncfiles"
 provision_shared_path: "/opt/omnia/provision"
 repos_share_path: "{{ syncfiles_share_path }}/repos"
 dir_permission: "0755"
 file_permission: "0644"
 pip_conf_src: "{{ role_path }}/templates/pip.conf.j2"
 pip_conf_dest: "{{ syncfiles_share_path }}/conf/pip.conf"
+pcs_container_name: "omnia_pcs"
 
 # Usage: create_files_local_repo_redhat.yml
 omnia_repo_template_src: "roles/configure_synclist/templates/omnia_repo_template.j2"
@@ -50,3 +52,6 @@ synclists_dir: "/install/synclists"
 
 pcs_files:
   - {src: "/opt/omnia/pcs/omnia_pcs.container"}
+
+service_pcs_files:
+  - {src: "{{ oim_shared_path }}/omnia/pcs/omnia_pcs.container"}

@@ -5,3 +5,8 @@
 {% if enable_oim_ha %}
 {{ syncfiles_share_path }}/pcs/{{ pcs_container_name }}.container -> {{ container_systemd_dir }}/{{ pcs_container_name }}.container
 {% endif %}
+
+{% if enable_service_ha %}
+{{ service_syncfiles_share_path }}/pcs/{{ pcs_container_name }} -> {{ oim_shared_path }}/omnia/pcs/{{ pcs_container_name }}.container
+{{ service_syncfiles_share_path }}/pcs/{{ pcs_container_name }}.container -> {{ container_systemd_dir }}/{{ pcs_container_name }}.container
+{% endif %}

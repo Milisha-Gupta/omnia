@@ -55,7 +55,7 @@
     path: "{{ syncfiles_share_path }}/pcs"
     state: directory
     mode: "{{ dir_permission }}"
-  when: enable_oim_ha
+  when: enable_oim_ha or enable_service_ha
 
 - name: Create symlinks for PCS files
   ansible.builtin.file:
@@ -63,7 +63,15 @@
     dest: "{{ syncfiles_share_path }}/pcs/{{ item.src | basename }}"
     state: link
   loop: "{{ pcs_files }}"
-  when: enable_oim_ha
+  when: enable_oim_ha or enable_service_ha
+
+# - name: Create symlinks for PCS files for service nodes
+#   ansible.builtin.file:
+#     src: "{{ item.src }}"
+#     dest: "{{ service_syncfiles_share_path }}/pcs/{{ item.src | basename }}"
+#     state: link
+#   loop: "{{ service_pcs_files }}"
+#   when: enable_service_ha  
 
 - name: Render pip.conf template
   ansible.builtin.template:

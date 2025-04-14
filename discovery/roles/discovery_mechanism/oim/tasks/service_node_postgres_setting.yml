@@ -17,13 +17,20 @@
   community.postgresql.postgresql_query:
     db: omniadb
     login_user: postgres
-    query: "SELECT admin_ip, node FROM cluster.nodeinfo WHERE role LIKE '%service%';"
+    query: "SELECT admin_ip, node, hostname, service_tag FROM cluster.nodeinfo WHERE role LIKE '%service%';"
     login_password: "{{ postgresdb_password }}"
   become: true
   become_user: postgres
   register: service_nodes
   failed_when: false
   no_log: true
+
+- name: Check if service nodes are found  
+  ansible.builtin.debug:
+    msg: "Service nodes found in the database: {{ service_nodes.query_result }}"
+  when:
+    - service_nodes.query_result is defined
+    - service_nodes.query_result | length > 0  
 
 - name: Fail if no service nodes are found
   ansible.builtin.debug:
