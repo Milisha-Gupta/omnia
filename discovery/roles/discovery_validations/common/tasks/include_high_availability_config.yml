@@ -40,10 +40,6 @@
 - name: Parse service_node_ha_data
   ansible.builtin.set_fact:
     service_node_ha_data: "{{ high_availability_config.ansible_facts.service_node_ha[0] | default({}) }}"
-
-- name: debug service_node_ha_data
-  ansible.builtin.debug:
-    var: service_node_ha_data
      
 - name: Register NFS Check
   ansible.builtin.set_fact:

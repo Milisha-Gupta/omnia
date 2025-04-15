@@ -13,22 +13,22 @@
 # limitations under the License.
 ---
 
-# - name: Register pulp distribution output for all rpm packages baseurl
-#   ansible.builtin.command: /usr/local/bin/pulp rpm distribution list --field base_url,name
-#   delegate_to: localhost
-#   register: pulp_distribution_rpm_baseurl
-#   changed_when: false
+- name: Register pulp distribution output for all rpm packages baseurl
+  ansible.builtin.command: /usr/local/bin/pulp rpm distribution list --field base_url,name
+  delegate_to: localhost
+  register: pulp_distribution_rpm_baseurl
+  changed_when: false
 
-# - name: Set fact for rpm base_url and name
-#   ansible.builtin.set_fact:
-#     rpm_base_urls: "{{ pulp_distribution_rpm_baseurl.stdout | from_json }}"
+- name: Set fact for rpm base_url and name
+  ansible.builtin.set_fact:
+    rpm_base_urls: "{{ pulp_distribution_rpm_baseurl.stdout | from_json }}"
 
-# - name: Use each item in base_url for template
-#   ansible.builtin.template:
-#     src: "{{ omnia_repo_template_src }}"
-#     dest: "{{ repos_share_path }}/{{ item.name }}.repo"
-#     mode: "{{ file_permission }}"
-#   loop: "{{ rpm_base_urls }}"
+- name: Use each item in base_url for template
+  ansible.builtin.template:
+    src: "{{ omnia_repo_template_src }}"
+    dest: "{{ repos_share_path }}/{{ item.name }}.repo"
+    mode: "{{ file_permission }}"
+  loop: "{{ rpm_base_urls }}"
 
 # Commenting out - waiting for pulp changes for os url to merge
 # - name: Generate and copy RHEL OS Repositories

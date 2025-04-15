@@ -141,22 +141,18 @@
         name: deploy_containers/pcs
         tasks_from: deploy_pcs_container_resources.yml
 
-
 - name: Save container images to NFS share
   hosts: oim
   connection: ssh
   gather_facts: false
   roles:
     - role: save_container_images
-      when: hostvars['localhost']['oim_ha_data'].ansible_facts.oim_ha.enable_oim_ha and omnia_share_option == 'NFS'
-
-- name: Save container images to NFS share
-  hosts: oim
-  connection: ssh
-  gather_facts: false
-  roles:
-    - role: save_container_images
-      when: hostvars['localhost']['service_node_ha_data']['enable_service_ha'] and omnia_share_option == 'NFS'
+      when: >
+        omnia_share_option == 'NFS' and
+        (
+          (hostvars['localhost']['oim_ha_data'].ansible_facts.oim_ha.enable_oim_ha | default(false)) or
+          (hostvars['localhost']['has_service_role'] | default(false))
+        )
 
 - name: Prepare oim completion
   hosts: localhost

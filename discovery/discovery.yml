@@ -82,6 +82,10 @@
       ansible.builtin.include_role:
         name: discovery_mechanism/oim     # noqa: role-name[path]
 
+    - name: Generate service node configuration  # noqa: role-name[path]
+      ansible.builtin.include_role:
+        name: service_node_config
+
 - name: Discovery from service nodes
   hosts: service_nodes
   connection: ssh

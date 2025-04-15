@@ -52,6 +52,3 @@ synclists_dir: "/install/synclists"
 
 pcs_files:
   - {src: "/opt/omnia/pcs/omnia_pcs.container"}
-
-service_pcs_files:
-  - {src: "{{ oim_shared_path }}/omnia/pcs/omnia_pcs.container"}
