@@ -26,6 +26,6 @@
         msg: "{{ roles_config_syntax_fail_msg }} Error: {{ include_roles_config.message }}"
 
 - name: Set has_service_role to true if 'service' role is present
-  set_fact:
+  ansible.builtin.set_fact:
     has_service_role: "{{ roles_config_data.Roles | selectattr('name', 'equalto', 'service') | list | length > 0 }}"
 

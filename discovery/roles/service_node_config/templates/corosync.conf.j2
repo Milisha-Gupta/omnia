@@ -21,7 +21,7 @@ nodelist {
   node {
     ring0_addr: {{ node.admin_ip }}
     name: {{ node.hostname }}
-    nodeid: {{ loop.index + 2 }}
+    nodeid: {{ loop.index + 1 }}
   }
 {% endfor %}
 {% else %}

@@ -1,6 +1,6 @@
 #!/bin/bash
 ################################################################################################################
-#  omnia_service_node:
+#  omnia_service_node_postboot:
 #      Configure Omnia's service nodes
 #
 #################################################################################################################
@@ -21,7 +21,7 @@ if [ ! -f "$LOGFILE" ]; then
 fi
 
 echo "--------------------------" >> "$LOGFILE"
-echo "$(date) - INFO - Starting Omnia Service node setup" >> "$LOGFILE"
+echo "$(date) - INFO - Starting Omnia Service node postboot configuration" >> "$LOGFILE"
 
 if [ -f "/etc/debian_version" ]; then
     str_os_type="debian"
@@ -45,6 +45,6 @@ ln -sf {{ oim_shared_path }}/omnia/service_nodes/$nodeid/{{ pcs_container_name }
 systemctl daemon-reload
 sudo systemctl start omnia_pcs
 
-echo "$(date) - INFO - Finished Omnia Service node setup" >> "$LOGFILE"
+echo "$(date) - INFO - Finished Omnia Service node postboot configuration" >> "$LOGFILE"
 echo "---------------------------"
 

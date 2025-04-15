@@ -1,68 +1,51 @@
-- name: Debug current group key for passive nodes
-  debug:
-    msg: "Currently processing HA group: {{ item.key }}"
-
 - name: Set variables for passive nodes
   set_fact:
     group_nodes: "{{ group_value }}"
     active_node: "{{ group_value | selectattr('active', 'equalto', true) | first }}"
     passive_nodes: "{{ group_value | selectattr('active', 'equalto', false) | list }}"
 
-- name: Debug active and passive nodes
-  debug:
-    msg:
-      - "Active node: {{ active_node }}"
-      - "Passive nodes: {{ passive_nodes }}"
-
-- name: Debug passive node service_tag
-  debug:
-    msg: "Passive node service_tag: {{ item.service_tag }}"
-  loop: "{{ passive_nodes }}"
-  loop_control:
-    label: "{{ item.hostname }}"
-
-
 - name: Create directory for passive nodes
   file:
-    path: "/opt/omnia/service_nodes/{{ item.service_tag }}"
+    path: "{{ passive_node_dir }}"
     state: directory
-    mode: '0755'
+    mode: "{{ file_permissions }}"
   loop: "{{ passive_nodes }}"
   loop_control:
-    label: "{{ item.service_tag }}"
+    label: "{{ node.service_tag }}"
+    loop_var: node
 
 - name: Generate corosync.conf for passive nodes (same as active)
   template:
-    src: corosync.conf.j2
-    dest: "/opt/omnia/service_nodes/{{ item.service_tag }}/corosync.conf"
+    src: "{{ corosync_tmpl }}"
+    dest: "{{ corosync_tmpl_dest }}"
   vars:
-    active_node: "{{ active_node }}"   # You can pass active node if needed
+    active_node: "{{ active_node }}"
     passive_nodes: "{{ passive_nodes }}"
+    node: "{{ node }}"
   loop: "{{ passive_nodes }}"
   loop_control:
-    label: "{{ item.service_tag }}"
+    label: "{{ node.service_tag }}"
+    loop_var: node
 
-
-- name: Generate omnia_pcs.container for passive nodes
+- name: Generate pcs container file for passive nodes
   template:
-    src: omnia_pcs.container.j2
-    dest: "/opt/omnia/service_nodes/{{ item.service_tag }}/omnia_pcs.container"
+    src: "{{ pcs_container_tmpl }}"
+    dest: "{{ pcs_container_tmpl_dest }}"
   vars:
-    node_info: "{{ item }}"
+    node_info: "{{ node }}"
   loop: "{{ passive_nodes }}"
   loop_control:
-    label: "{{ item.service_tag }}"
+    label: "{{ node.service_tag }}"
+    loop_var: node
 
 - name: Generate pcs-start.sh for passive nodes
   template:
-    src: pcs-start.sh.j2
-    dest: "/opt/omnia/service_nodes/{{ item.service_tag }}/pcs-start.sh"
-    mode: '0755'
+    src: "{{ pcs_start_tmpl }}"
+    dest: "{{ pcs_start_tmpl_dest }}"
+    mode: "{{ file_permissions }}"
   vars:
-    item: "{{ item }}"  # For each passive node
-    pcs_group: "omnia"
-    monitor_interval: "30s"
-    ha_migration_threshold: 3
+    node: "{{ node }}"
   loop: "{{ passive_nodes }}"
   loop_control:
-    label: "{{ item.service_tag }}"
+    label: "{{ node.service_tag }}"
+    loop_var: node

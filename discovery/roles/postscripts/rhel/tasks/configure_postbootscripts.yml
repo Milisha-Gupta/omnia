@@ -42,6 +42,6 @@
   when: enable_oim_ha
 
 - name: Configure service node postboot script to postscripts
-  ansible.builtin.command: "{{ xcat_path }}/chdef service -p postbootscripts=\"omnia_service_node\""
+  ansible.builtin.command: "{{ xcat_path }}/chdef service -p postbootscripts=\"omnia_service_node_postboot\""
   changed_when: true
    

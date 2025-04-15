@@ -1,49 +1,46 @@
 
 # roles/service_node_config/tasks/generate_servicenode_config.yml
-- name: Debug current group key
-  debug:
-    msg: "Currently processing HA group: {{ item.key }}"
+# - name: Debug current group key
+#   debug:
+#     msg: "Currently processing HA group: {{ item.key }}"
 - name: Set variables for active and passive nodes
   set_fact:
     group_nodes: "{{ group_value }}"
     active_node: "{{ group_value | selectattr('active', 'equalto', true) | first }}"
     passive_nodes: "{{ group_value | selectattr('active', 'equalto', false) | list }}"
-- name: Debug active and passive nodes
-  debug:
-    msg:
-      - "Active node: {{ active_node }}"
-      - "Passive nodes: {{ passive_nodes }}"
-- name: Create directory for group
+
+- name: Create directory for service node
   file:
-    path: "/opt/omnia/service_nodes/{{ item.key }}"
+    path: "{{ active_service_node_dir }}"
     state: directory
-    mode: '0755'
+    mode: "{{ file_permissions }}"
+    
 - name: Generate corosync.conf
   template:
-    src: corosync.conf.j2
-    dest: "/opt/omnia/service_nodes/{{ item.key }}/corosync.conf"
-  vars:
-    active_node: "{{ active_node }}"
-    passive_nodes: "{{ passive_nodes }}"
+    src: "{{ corosync_tmpl }}"
+    dest: "{{ active_node_corosync_dest }}"
+  # vars:
+  #   active_node: "{{ active_node }}"
+  #   passive_nodes: "{{ passive_nodes }}"
     
-- name: Generate omnia_pcs.container
+- name: Generate pcs container file
   template:
-    src: omnia_pcs.container.j2
-    dest: "{{ oim_shared_path }}/service_nodes/{{ active_node.service_tag }}/omnia_pcs.container"
+    src: "{{ pcs_container_tmpl }}"
+    dest: "{{ active_pcs_container_dest}}"
   vars:
-    node_info: "{{ active_node }}"  
-- name: debug enable_service_ha
-  debug:
-    msg: "enable_service_ha: {{ enable_service_ha }}"
-  when: enable_service_ha | default(false) | bool
+    node_info: "{{ active_node }}"
+
+# - name: debug enable_service_ha
+#   debug:
+#     msg: "enable_service_ha: {{ enable_service_ha }}"
+#   when: enable_service_ha | default(false) | bool
 
 - name: Generate pcs-start.sh
   template:
-    src: pcs-start.sh.j2
-    dest: "/opt/omnia/service_nodes/{{ active_node.service_tag }}/pcs-start.sh"
+    src: "{{ pcs_start_tmpl }}"
+    dest: "{{ service_node_base_dir }}/{{ active_node.service_tag }}/pcs-start.sh"
     mode: '0755'
   vars:
     item: "{{ active_node }}"
-    pcs_group: "omnia"
-    monitor_interval: "30s"
-    ha_migration_threshold: 3
+  
+
