@@ -1,2 +1,28 @@
+- name: Load service HA data
+  set_fact:
+    service_ha_data: "{{ lookup('file', '/opt/omnia/service_nodes/service_ha_config_data.json') | from_json }}"
+
 - name: generate service node configuration
-  ansible.builtin.include_tasks: generate_servicenode_config.yml
+  ansible.builtin.include_tasks: generate_active_servicenode_config.yml
+  loop: "{{ service_ha_data | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  vars:
+    group_key: "{{ item.key }}"
+    group_value: "{{ item.value }}"
+  when: enable_service_ha | default(false) | bool
+
+- name: Generate service node configuration for passive nodes
+  ansible.builtin.include_tasks: generate_passive_servicenode_config.yml
+  loop: "{{ service_ha_data | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  vars:
+    group_key: "{{ item.key }}"
+    group_value: "{{ item.value }}"
+  when: enable_service_ha | default(false) | bool
+
+- name: Generate service node configuration for non-HA nodes  
+  ansible.builtin.include_tasks: generate_non_ha_servicenode_config.yml
+  
+  

@@ -38,22 +38,13 @@ fi
 nodeid=$(dmidecode -s system-serial-number)
 echo "[DEBUG] Current node serial: $nodeid" >> "$LOGFILE"
 
-# Determine active node for this serial
-{% set active_node_map = {} %}
-{% for group in service_node_ha_data.service_nodes %}
-  {% for passive_tag in group.passive_nodes[0].node_service_tags %}
-    {% set _ = active_node_map.update({passive_tag: group.active_node_service_tag}) %}
-  {% endfor %}
-{% endfor %}
-
-active_node="{{ active_node_map.get(nodeid, nodeid) }}"
-echo "[DEBUG] Using container from active node: $active_node" >> "$LOGFILE"
-
-ln -sf {{ oim_shared_path }}/omnia/service_nodes/${active_node}/{{ pcs_container_name }}.container \
+ln -sf {{ oim_shared_path }}/omnia/service_nodes/$nodeid/{{ pcs_container_name }}.container \
        {{ container_systemd_dir }}/{{ pcs_container_name }}.container
 
 # Start the pcs container
+systemctl daemon-reload
 sudo systemctl start omnia_pcs
 
 echo "$(date) - INFO - Finished Omnia Service node setup" >> "$LOGFILE"
 echo "---------------------------"
+
