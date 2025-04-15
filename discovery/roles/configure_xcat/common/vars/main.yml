@@ -25,7 +25,7 @@ xcat_sbin_path: /opt/xcat/sbin
 osimage_search_key: install-compute
 service_osimage_search_key: install-service
 tmp_dir: /tmp/osimages
-xcat_install_dir: /install/rhels9.4.0/x86_64
+xcat_install_dir: /install
 mode: "755"
 
 # Usage: update_ipmi_table.yml

@@ -1,4 +1,3 @@
----
 # Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,8 +17,7 @@
   block:
     - name: Include roles_config.yml
       ansible.builtin.include_vars: "{{ roles_config_path }}"
-      register: include_roles_config
-      tags: init
+      register: roles_config_data
   rescue:
     - name: Failed to include  roles_config.yml
       ansible.builtin.fail:
@@ -27,5 +25,4 @@
 
 - name: Set has_service_role to true if 'service' role is present
   ansible.builtin.set_fact:
-    has_service_role: "{{ roles_config_data.Roles | selectattr('name', 'equalto', 'service') | list | length > 0 }}"
-
+    has_service_role: "{{ roles_config_data.ansible_facts.Roles | selectattr('name', 'equalto', 'service') | list | length > 0 }}"
